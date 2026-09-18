@@ -1,0 +1,23 @@
+{
+  "name": "api-crud-usuarios",
+  "version": "1.0.0",
+  "description": "API CRUD simples de usuários com Node, Express e Prisma",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.25",
+    "@types/node": "^20.19.43",
+    "prisma": "^5.22.0",
+    "tsx": "^4.23.13",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "dotenv": "^16.4.1",
+    "express": "^4.22.2"
+  }
+}

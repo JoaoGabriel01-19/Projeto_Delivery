@@ -1,0 +1,125 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Clientes {
+  id           Int       @id @default(autoincrement())
+  nome         String    @db.VarChar(100)
+  telefone     String    @unique @db.VarChar(20)
+  cpf          String    @unique @db.Char(11)
+  email        String    @db.VarChar(100)
+  data_criacao DateTime? @db.Date
+
+  enderecos Endereco[]
+  pedidos   Pedidos[]
+
+  @@map("clientes")
+}
+
+model Endereco {
+  id          Int     @id @default(autoincrement())
+  id_clientes Int?
+  rua         String  @db.VarChar(50)
+  numero      Int
+  complemento String? @db.VarChar(25)
+  cep         String  @db.VarChar(8)
+
+  cliente Clientes? @relation(fields: [id_clientes], references: [id])
+  pedidos Pedidos[]
+}
+
+model Loja {
+  id       Int    @id @default(autoincrement())
+  nome     String @unique @db.VarChar(35)
+  cnpj     String @unique @db.Char(14)
+  telefone String @unique @db.VarChar(20)
+  rua      String @db.VarChar(35)
+  numero   Int
+
+  produtos Produtos[]
+  pedidos  Pedidos[]
+}
+
+model Categoria {
+  id        Int     @id @default(autoincrement())
+  descricao String? @db.VarChar(50)
+
+  produtos Produtos[]
+}
+
+model Produtos {
+  id           Int     @id @default(autoincrement())
+  id_loja      Int?
+  id_categoria Int?
+  nome         String? @db.VarChar(35)
+  descricao    String? @db.VarChar(50)
+  preco        Decimal @db.Decimal(10, 2)
+  disponivel   Boolean @default(true)
+
+  loja         Loja?        @relation(fields: [id_loja], references: [id])
+  categoria    Categoria?   @relation(fields: [id_categoria], references: [id])
+  itens_pedido ItemPedido[]
+}
+
+model TipoVeiculo {
+  id        Int     @id @default(autoincrement())
+  descricao String? @db.VarChar(8)
+
+  entregadores Entregadores[]
+}
+
+model Entregadores {
+  id              Int    @id @default(autoincrement())
+  id_tipo_veiculo Int?
+  nome            String @db.VarChar(100)
+  cpf             String @unique @db.Char(11)
+  telefone        String @unique @db.VarChar(20)
+  placa           String @unique @db.Char(7)
+
+  tipo_veiculo TipoVeiculo? @relation(fields: [id_tipo_veiculo], references: [id])
+  pedidos      Pedidos[]
+}
+
+model StatusPedido {
+  id        Int     @id @default(autoincrement())
+  descricao String? @db.VarChar(20)
+
+  pedidos Pedidos[]
+}
+
+model Pedidos {
+  id               Int      @id @default(autoincrement())
+  id_clientes      Int?
+  id_entregadores  Int?
+  id_loja          Int?
+  id_endereco      Int?
+  id_status_pedido Int?
+  valor_total      Decimal  @db.Decimal(10, 2)
+  taxa_entrega     Decimal  @default(7.00) @db.Decimal(10, 2)
+  data_pedido      DateTime @default(now())
+
+  cliente    Clientes?     @relation(fields: [id_clientes], references: [id])
+  entregador Entregadores? @relation(fields: [id_entregadores], references: [id])
+  loja       Loja?         @relation(fields: [id_loja], references: [id])
+  endereco   Endereco?     @relation(fields: [id_endereco], references: [id])
+  status     StatusPedido? @relation(fields: [id_status_pedido], references: [id])
+
+  itens ItemPedido[]
+}
+
+model ItemPedido {
+  id_item     Int @id @default(autoincrement())
+  id_pedidos  Int
+  id_produtos Int
+  quantidade  Int
+
+  pedido  Pedidos  @relation(fields: [id_pedidos], references: [id])
+  produto Produtos @relation(fields: [id_produtos], references: [id])
+
+  @@unique([id_pedidos, id_produtos])
+}
